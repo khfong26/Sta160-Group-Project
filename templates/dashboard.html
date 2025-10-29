@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Canada — Consumer Prices, Food Index (2015 = 100)</h2>
+<div id="cpi-chart" style="height:500px;"></div>
+
+<script>
+fetch('/api/cpi_data')
+  .then(response => response.json())
+  .then(data => {
+    const trace = {
+      x: data.dates,
+      y: data.values,
+      mode: 'lines+markers',
+      type: 'scatter',
+      line: { color: '#007bff' }
+    };
+
+    const layout = {
+      title: 'Food CPI Over Time',
+      xaxis: { title: 'Date' },
+      yaxis: { title: 'Index (2015 = 100)' },
+      plot_bgcolor: 'white',
+      paper_bgcolor: 'white'
+    };
+
+    Plotly.newPlot('cpi-chart', [trace], layout);
+  });
+</script>
+{% endblock %}
