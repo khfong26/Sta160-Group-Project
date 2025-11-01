@@ -1,29 +1,32 @@
 {% extends "base.html" %}
+{% block title %}Food Prices & Inflation Dashboard{% endblock %}
+
 {% block content %}
-<h2>Canada — Consumer Prices, Food Index (2015 = 100)</h2>
-<div id="cpi-chart" style="height:500px;"></div>
+<div class="container py-5">
+  <h1 class="text-center mb-4">Food Prices & Inflation Dashboard</h1>
 
-<script>
-fetch('/api/cpi_data')
-  .then(response => response.json())
-  .then(data => {
-    const trace = {
-      x: data.dates,
-      y: data.values,
-      mode: 'lines+markers',
-      type: 'scatter',
-      line: { color: '#007bff' }
-    };
+  <section class="mb-4 bg-white shadow rounded p-3">
+    <h2 class="h5 mb-2">FAOSTAT Food Prices</h2>
+    <div id="faostat-chart" style="height:320px;"></div>
+  </section>
 
-    const layout = {
-      title: 'Food CPI Over Time',
-      xaxis: { title: 'Date' },
-      yaxis: { title: 'Index (2015 = 100)' },
-      plot_bgcolor: 'white',
-      paper_bgcolor: 'white'
-    };
+  <section class="mb-4 bg-white shadow rounded p-3">
+    <h2 class="h5 mb-2">World Bank Inflation</h2>
+    <div id="worldbank-chart" style="height:320px;"></div>
+  </section>
 
-    Plotly.newPlot('cpi-chart', [trace], layout);
-  });
-</script>
+  <section class="mb-4 bg-white shadow rounded p-3">
+    <h2 class="h5 mb-2">IMF Economic Indicators</h2>
+    <div id="imf-chart" style="height:320px;"></div>
+  </section>
+
+  <section class="mb-4 bg-white shadow rounded p-3">
+    <h2 class="h5 mb-2">Our World in Data - CPI Comparison</h2>
+    <div id="owid-chart" style="height:320px;"></div>
+  </section>
+</div>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+
 {% endblock %}
