@@ -3,6 +3,9 @@
 <h2>Canada — Consumer Prices, Food Index (2015 = 100)</h2>
 <div id="cpi-chart" style="height:500px;"></div>
 
+<h2 style="margin-top:40px;">IMF — CPI Inflation (% change) by Country</h2>
+<div id="imf_inflation_chart" style="height:500px;"></div>
+
 <script>
 fetch('/api/cpi_data')
   .then(response => response.json())
@@ -24,6 +27,35 @@ fetch('/api/cpi_data')
     };
 
     Plotly.newPlot('cpi-chart', [trace], layout);
+  });
+
+fetch('/api/imf_inflation')
+  .then(resp => resp.json())
+  .then(data => {
+    const years = data.years;
+    const countryList = data.countries;
+    const seriesDict = data.values;
+    const traces = countryList.map(countryName => {
+      return {
+        x: years,
+        y: seriesDict[countryName],
+        mode: 'lines+markers',
+        type: 'scatter',
+        name: countryName
+      };
+    });
+    const layout2 = {
+      title: 'IMF CPI Inflation (% change)',
+      xaxis: { title: 'Year' },
+      yaxis: { title: 'Inflation rate (%)' },
+      plot_bgcolor: 'white',
+      paper_bgcolor: 'white'
+    };
+
+    Plotly.newPlot('imf_inflation_chart', traces, layout2);
+  })
+  .catch(err => {
+    console.error('Error loading /api/imf_inflation:', err);
   });
 </script>
 {% endblock %}
