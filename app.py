@@ -18,7 +18,7 @@ def load_data():
     df = df.dropna(subset=['date', 'Value'])
     df = df.sort_values('date')
     df['year'] = df['date'].dt.year
-    return df‘
+    return df
 
 # load data from csv and returns it as panda df
 def load_imf_data():
