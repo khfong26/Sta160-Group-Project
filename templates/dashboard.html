@@ -4,21 +4,19 @@
 <div id="cpi-chart" style="height:500px;"></div>
 
 <h2 style="margin-top:40px;">IMF — CPI Inflation (% change) by Country</h2>
-<div id="imf_inflation_chart" style="height:500px;"></div>
+<div id="inflation_chart" style="height:400px;"></div>
 
 <h2 style="margin-top:40px;">IMF — GDP Growth (% change) by Country</h2>
-<div id="imf_gdp_chart" style="height:400px;"></div>
+<div id="gdp_chart" style="height:400px;"></div>
+
+<h2 style="margin-top:40px;">Inflation vs GDP Growth (Scatter)</h2>
+<div id="scatter_chart" style="height:400px;"></div>
 
 <h2 style="margin-top:40px;">IMF — Inflation Distribution (Boxplot)</h2>
 <div id="inflation_boxplot_chart" style="height:400px;"></div>
 
-<h2 style="margin-top:40px;">IMF — GDP Growth Distribution (Boxplot)</h2>
-<div id="gdp_boxplot_chart" style="height:400px;"></div>
-
-<h2 style="margin-top:40px;">IMF — Inflation vs GDP Growth (Scatter)</h2>
-<div id="scatter_infl_vs_gdp_chart" style="height:400px;"></div>
-
 <script>
+
 fetch('/api/cpi_data')
   .then(response => response.json())
   .then(data => {
@@ -41,18 +39,25 @@ fetch('/api/cpi_data')
     Plotly.newPlot('cpi-chart', [trace], layout);
   });
 
-// 2. INFLATION OVER TIME  +  INFLATION BOXPLOT
 fetch('/api/imf_inflation')
-  .then(resp => resp.json())
+  .then(r => r.json())
   .then(data => {
-    const years = data.years;            // [2000, 2001, ...]
-    const countries = data.countries;    // ["Canada", "Mexico", ...]
-    const seriesDict = data.values;      // {Canada: [...], Mexico: [...], ...}
 
-    //line chart: inflation (% change) by country over time
-    const inflLineTraces = buildLineTraces(years, countries, seriesDict);
+    const years = data.years;
+    const countries = data.countries;
+    const allSeries = data.values;
 
-    const inflLayout = {
+    const traces = countries.map(countryName => {
+      return {
+        x: years,
+        y: allSeries[countryName],
+        mode: 'lines+markers',
+        type: 'scatter',
+        name: countryName
+      };
+    });
+
+    const layout = {
       title: 'IMF CPI Inflation (% change)',
       xaxis: { title: 'Year' },
       yaxis: { title: 'Inflation rate (%)' },
@@ -60,112 +65,107 @@ fetch('/api/imf_inflation')
       paper_bgcolor: 'white'
     };
 
-    Plotly.newPlot('imf_inflation_chart', inflLineTraces, inflLayout);
+    Plotly.newPlot('inflation_chart', traces, layout);
 
-    //boxplot: inflation distribution
-    const inflBoxTraces = buildBoxTraces(countries, seriesDict, 'Inflation rate (%)');
+    const boxTraces = countries.map(countryName => {
+      return {
+        y: allSeries[countryName],
+        type: 'box',
+        name: countryName,
+        boxpoints: 'outliers'
+      };
+    });
 
-    const inflBoxLayout = {
-      title: 'Inflation Distribution by Country',
+    const boxLayout = {
+      title: 'IMF Inflation Distribution (Boxplot)',
       yaxis: { title: 'Inflation rate (%)' },
-      boxmode: 'group',
       plot_bgcolor: 'white',
       paper_bgcolor: 'white'
     };
 
-    Plotly.newPlot('inflation_boxplot_chart', inflBoxTraces, inflBoxLayout);
+    Plotly.newPlot('inflation_boxplot_chart', boxTraces, boxLayout);
   })
   .catch(err => {
     console.error('Error loading /api/imf_inflation:', err);
   });
 
 
-//GDP GROWTH OVER TIME  +  GDP BOXPLOT
+// =============== 2. IMF GDP Growth over Years (Line plot) ===============
 fetch('/api/imf_gdp_growth')
-  .then(resp => resp.json())
+  .then(r => r.json())
   .then(data => {
+
     const years = data.years;
     const countries = data.countries;
-    const seriesDict = data.values;  // {Canada: [...], Mexico: [...], ... GDP growth }
+    const allSeries = data.values;
 
-    //line chart: GDP growth over time
-    const gdpLineTraces = buildLineTraces(years, countries, seriesDict);
+    const traces = countries.map(countryName => {
+      return {
+        x: years,
+        y: allSeries[countryName],
+        mode: 'lines+markers',
+        type: 'scatter',
+        name: countryName
+      };
+    });
 
-    const gdpLayout = {
+    const layout = {
       title: 'IMF GDP Growth (% change)',
       xaxis: { title: 'Year' },
-      yaxis: { title: 'GDP growth rate (%)' },
+      yaxis: { title: 'GDP growth (%)' },
       plot_bgcolor: 'white',
       paper_bgcolor: 'white'
     };
 
-    Plotly.newPlot('imf_gdp_chart', gdpLineTraces, gdpLayout);
-
-    //boxplot: GDP growth distribution
-    const gdpBoxTraces = buildBoxTraces(countries, seriesDict, 'GDP growth rate (%)');
-
-    const gdpBoxLayout = {
-      title: 'GDP Growth Distribution by Country',
-      yaxis: { title: 'GDP growth rate (%)' },
-      boxmode: 'group',
-      plot_bgcolor: 'white',
-      paper_bgcolor: 'white'
-    };
-
-    Plotly.newPlot('gdp_boxplot_chart', gdpBoxTraces, gdpBoxLayout);
+    Plotly.newPlot('gdp_chart', traces, layout);
   })
   .catch(err => {
     console.error('Error loading /api/imf_gdp_growth:', err);
   });
 
 
-//SCATTER: INFLATION vs GDP GROWTH
-// uses your /api/imf_scatter endpoint
+// =============== 3. GDP Growth vs Inflation (Scatter) ===============
 fetch('/api/imf_scatter')
   .then(r => r.json())
-  .then(points => {
-    // points is like:
-    // [
-    //   {country: "Canada", year: 2005, inflation: 2.3, gdp_growth: 1.8},
-    //   {country: "Mexico", year: 2005, inflation: 4.2, gdp_growth: 3.1},
-    //   ...
-    // ]
+  .then(data => {
 
-    const tracesByCountry = {};
+    const pts = data.points;
 
-    points.forEach(pt => {
-      if (!tracesByCountry[pt.country]) {
-        tracesByCountry[pt.country] = {
-          x: [],
-          y: [],
-          text: [],
-          mode: 'markers',
-          type: 'scatter',
-          name: pt.country
-        };
+    const grouped = {};
+    pts.forEach(p => {
+      if (!grouped[p.country]) {
+        grouped[p.country] = { x: [], y: [], text: [] };
       }
-      tracesByCountry[pt.country].x.push(pt.inflation);
-      tracesByCountry[pt.country].y.push(pt.gdp_growth);
-      tracesByCountry[pt.country].text.push(
-        `${pt.country} ${pt.year}\nInflation: ${pt.inflation}%\nGDP: ${pt.gdp_growth}%`
-      );
+      grouped[p.country].x.push(p.inflation);
+      grouped[p.country].y.push(p.gdp_growth);
+      grouped[p.country].text.push(`${p.country} ${p.year}`);
     });
 
-    const scatterTraces = Object.values(tracesByCountry);
+    const traces = Object.keys(grouped).map(countryName => {
+      return {
+        x: grouped[countryName].x,
+        y: grouped[countryName].y,
+        text: grouped[countryName].text,
+        mode: 'markers',
+        type: 'scatter',
+        name: countryName
+      };
+    });
 
-    const scatterLayout = {
-      title: 'Inflation vs GDP Growth',
-      xaxis: { title: 'Inflation rate (%)' },
-      yaxis: { title: 'GDP growth rate (%)' },
+    const layout = {
+      title: 'GDP Growth vs Inflation',
+      xaxis: { title: 'Inflation (%)' },
+      yaxis: { title: 'GDP Growth (%)' },
       plot_bgcolor: 'white',
       paper_bgcolor: 'white'
     };
 
-    Plotly.newPlot('scatter_infl_vs_gdp_chart', scatterTraces, scatterLayout);
+    Plotly.newPlot('scatter_chart', traces, layout);
   })
   .catch(err => {
     console.error('Error loading /api/imf_scatter:', err);
   });
-  
+
 </script>
 {% endblock %}
+
