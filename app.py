@@ -83,6 +83,29 @@ def api_imf_gdp_growth():
     data = _reshape_indicator(df, "GDP (constant prices, % change)")
     return jsonify(data)
 
+@app.route('/api/imf_scatter')
+def api_imf_scatter():
+    df = load_imf_data()
+    infl = df[df['Indicator'] == "CPI inflation (% change)"][['Country','Year','Value']].copy()
+    infl = infl.rename(columns={'Value': 'Inflation'})
+    gdp = df[df['Indicator'] == "GDP (constant prices, % change)"][['Country','Year','Value']].copy()
+    gdp = gdp.rename(columns={'Value': 'GDP_Growth'})
+    merged = infl.merge(gdp, on=['Country','Year'], how='inner')
+    merged = merged.dropna(subset=['Inflation','GDP_Growth'])
+    merged['Inflation'] = merged['Inflation'].astype(float)
+    merged['GDP_Growth'] = merged['GDP_Growth'].astype(float)
+    merged['Year'] = merged['Year'].astype(int)
+
+    points = []
+    for _, row in merged.iterrows():
+        points.append({
+            "country": row['Country'],
+            "year": row['Year'],
+            "inflation": row['Inflation'],
+            "gdp_growth": row['GDP_Growth']
+        })
+
+    return jsonify({"points": points})
 
 if __name__ == '__main__':
     app.run(debug=True)
