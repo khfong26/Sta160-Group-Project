@@ -22,7 +22,7 @@ files = {
 dfs = {k: pd.read_csv(v) for k, v in files.items()}
 
 # 3️⃣ Filter for North America
-countries = ["United States", "Canada", "Mexico"]
+countries = ["United States", "Canada", "Mexico"]   
 for k, df in dfs.items():
     df = df[df["Country Name"].isin(countries)]
     dfs[k] = df.reset_index(drop=True)
