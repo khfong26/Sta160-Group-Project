@@ -3,7 +3,20 @@
 <h2>Canada — Consumer Prices, Food Index (2015 = 100)</h2>
 <div id="cpi-chart" style="height:500px;"></div>
 
+<h2 style="margin-top:40px;">IMF — CPI Inflation (% change) by Country</h2>
+<div id="inflation_chart" style="height:400px;"></div>
+
+<h2 style="margin-top:40px;">IMF — GDP Growth (% change) by Country</h2>
+<div id="gdp_chart" style="height:400px;"></div>
+
+<h2 style="margin-top:40px;">Inflation vs GDP Growth (Scatter)</h2>
+<div id="scatter_chart" style="height:400px;"></div>
+
+<h2 style="margin-top:40px;">IMF — Inflation Distribution (Boxplot)</h2>
+<div id="inflation_boxplot_chart" style="height:400px;"></div>
+
 <script>
+
 fetch('/api/cpi_data')
   .then(response => response.json())
   .then(data => {
@@ -25,5 +38,134 @@ fetch('/api/cpi_data')
 
     Plotly.newPlot('cpi-chart', [trace], layout);
   });
+
+fetch('/api/imf_inflation')
+  .then(r => r.json())
+  .then(data => {
+
+    const years = data.years;
+    const countries = data.countries;
+    const allSeries = data.values;
+
+    const traces = countries.map(countryName => {
+      return {
+        x: years,
+        y: allSeries[countryName],
+        mode: 'lines+markers',
+        type: 'scatter',
+        name: countryName
+      };
+    });
+
+    const layout = {
+      title: 'IMF CPI Inflation (% change)',
+      xaxis: { title: 'Year' },
+      yaxis: { title: 'Inflation rate (%)' },
+      plot_bgcolor: 'white',
+      paper_bgcolor: 'white'
+    };
+
+    Plotly.newPlot('inflation_chart', traces, layout);
+
+    const boxTraces = countries.map(countryName => {
+      return {
+        y: allSeries[countryName],
+        type: 'box',
+        name: countryName,
+        boxpoints: 'outliers'
+      };
+    });
+
+    const boxLayout = {
+      title: 'IMF Inflation Distribution (Boxplot)',
+      yaxis: { title: 'Inflation rate (%)' },
+      plot_bgcolor: 'white',
+      paper_bgcolor: 'white'
+    };
+
+    Plotly.newPlot('inflation_boxplot_chart', boxTraces, boxLayout);
+  })
+  .catch(err => {
+    console.error('Error loading /api/imf_inflation:', err);
+  });
+
+
+// =============== 2. IMF GDP Growth over Years (Line plot) ===============
+fetch('/api/imf_gdp_growth')
+  .then(r => r.json())
+  .then(data => {
+
+    const years = data.years;
+    const countries = data.countries;
+    const allSeries = data.values;
+
+    const traces = countries.map(countryName => {
+      return {
+        x: years,
+        y: allSeries[countryName],
+        mode: 'lines+markers',
+        type: 'scatter',
+        name: countryName
+      };
+    });
+
+    const layout = {
+      title: 'IMF GDP Growth (% change)',
+      xaxis: { title: 'Year' },
+      yaxis: { title: 'GDP growth (%)' },
+      plot_bgcolor: 'white',
+      paper_bgcolor: 'white'
+    };
+
+    Plotly.newPlot('gdp_chart', traces, layout);
+  })
+  .catch(err => {
+    console.error('Error loading /api/imf_gdp_growth:', err);
+  });
+
+
+// =============== 3. GDP Growth vs Inflation (Scatter) ===============
+fetch('/api/imf_scatter')
+  .then(r => r.json())
+  .then(data => {
+
+    const pts = data.points;
+
+    const grouped = {};
+    pts.forEach(p => {
+      if (!grouped[p.country]) {
+        grouped[p.country] = { x: [], y: [], text: [] };
+      }
+      grouped[p.country].x.push(p.inflation);
+      grouped[p.country].y.push(p.gdp_growth);
+      grouped[p.country].text.push(`${p.country} ${p.year}`);
+    });
+
+    const traces = Object.keys(grouped).map(countryName => {
+      return {
+        x: grouped[countryName].x,
+        y: grouped[countryName].y,
+        text: grouped[countryName].text,
+        mode: 'markers',
+        type: 'scatter',
+        name: countryName
+      };
+    });
+
+    const layout = {
+      title: 'GDP Growth vs Inflation',
+      xaxis: { title: 'Inflation (%)' },
+      yaxis: { title: 'GDP Growth (%)' },
+      plot_bgcolor: 'white',
+      paper_bgcolor: 'white'
+    };
+
+    Plotly.newPlot('scatter_chart', traces, layout);
+  })
+  .catch(err => {
+    console.error('Error loading /api/imf_scatter:', err);
+  });
+
 </script>
 {% endblock %}
+
