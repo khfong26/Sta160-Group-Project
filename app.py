@@ -28,14 +28,7 @@ def index():
 def dashboard():
     return render_template('dashboard.html')
 
-@app.route('/api/cpi_data')
-def api_cpi_data():
-    df = load_data()
-    data = {
-        "dates": df['date'].dt.strftime('%Y-%m-%d').tolist(),
-        "values": df['Value'].tolist()
-    }
-    return jsonify(data)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
