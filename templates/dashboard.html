@@ -1,5 +1,38 @@
 {% extends "base.html" %}
+{% block title %}Food Prices & Inflation Dashboard{% endblock %}
+
 {% block content %}
+
+"""
+<div class="container py-5">
+  <h1 class="text-center mb-4">Food Prices & Inflation Dashboard</h1>
+
+  <section class="mb-4 bg-white shadow rounded p-3">
+    <h2 class="h5 mb-2">FAOSTAT Food Prices</h2>
+    <div id="faostat-chart" style="height:320px;"></div>
+  </section>
+
+  <section class="mb-4 bg-white shadow rounded p-3">
+    <h2 class="h5 mb-2">World Bank Inflation</h2>
+    <div id="worldbank-chart" style="height:320px;"></div>
+  </section>
+
+  <section class="mb-4 bg-white shadow rounded p-3">
+    <h2 class="h5 mb-2">IMF Economic Indicators</h2>
+    <div id="imf-chart" style="height:320px;"></div>
+  </section>
+
+  <section class="mb-4 bg-white shadow rounded p-3">
+    <h2 class="h5 mb-2">Our World in Data - CPI Comparison</h2>
+    <div id="owid-chart" style="height:320px;"></div>
+  </section>
+</div>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+
+{% endblock %}
+"""
 <h2>Canada — Consumer Prices, Food Index (2015 = 100)</h2>
 <div id="cpi-chart" style="height:500px;"></div>
 
