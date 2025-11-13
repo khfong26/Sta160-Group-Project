@@ -3,38 +3,6 @@
 
 {% block content %}
 
-
-<!--
-<div class="container py-5">
-  <h1 class="text-center mb-4">Food Prices & Inflation Dashboard</h1>
-
-  <section class="mb-4 bg-white shadow rounded p-3">
-    <h2 class="h5 mb-2">FAOSTAT Food Prices</h2>
-    <div id="faostat-chart" style="height:320px;"></div>
-  </section>
-
-  <section class="mb-4 bg-white shadow rounded p-3">
-    <h2 class="h5 mb-2">World Bank Inflation</h2>
-    <div id="worldbank-chart" style="height:320px;"></div>
-  </section>
-
-  <section class="mb-4 bg-white shadow rounded p-3">
-    <h2 class="h5 mb-2">IMF Economic Indicators</h2>
-    <div id="imf-chart" style="height:320px;"></div>
-  </section>
-
-  <section class="mb-4 bg-white shadow rounded p-3">
-    <h2 class="h5 mb-2">Our World in Data - CPI Comparison</h2>
-    <div id="owid-chart" style="height:320px;"></div>
-  </section>
-</div>
-
-<script src="{{ url_for('static', filename='js/main.js') }}"></script>
-
-
-{% endblock %}
--->
-
 <h2>Canada — Consumer Prices, Food Index (2015 = 100)</h2>
 <div id="cpi-chart" style="height:500px;"></div>
 
@@ -51,7 +19,7 @@
 <div id="inflation_boxplot_chart" style="height:400px;"></div>
 
 <script>
-
+/* FAOSTAT CPI time series */
 fetch('/api/cpi_data')
   .then(response => response.json())
   .then(data => {
@@ -60,31 +28,37 @@ fetch('/api/cpi_data')
       y: data.values,
       mode: 'lines+markers',
       type: 'scatter',
-      line: { color: '#007bff' }
+      line: { color: '#007bff' },
+      name: 'Food CPI'
     };
 
+    const layout = {
+      title: 'Canada — Food CPI (2015 = 100)',
+      xaxis: { title: 'Date' },
+      yaxis: { title: 'Index (2015 = 100)' },
+      plot_bgcolor: 'white',
+      paper_bgcolor: 'white'
+    };
 
+    Plotly.newPlot('cpi-chart', [trace], layout, {responsive: true});
+  })
+  .catch(err => console.error('Error loading /api/cpi_data:', err));
 
-    Plotly.newPlot('cpi-chart', [trace], layout);
-  });
-
+/* IMF inflation: line series + boxplot */
 fetch('/api/imf_inflation')
   .then(r => r.json())
   .then(data => {
-
     const years = data.years;
     const countries = data.countries;
     const allSeries = data.values;
 
-    const traces = countries.map(countryName => {
-      return {
-        x: years,
-        y: allSeries[countryName],
-        mode: 'lines+markers',
-        type: 'scatter',
-        name: countryName
-      };
-    });
+    const traces = countries.map(countryName => ({
+      x: years,
+      y: allSeries[countryName],
+      mode: 'lines+markers',
+      type: 'scatter',
+      name: countryName
+    }));
 
     const layout = {
       title: 'IMF CPI Inflation (% change)',
@@ -94,16 +68,14 @@ fetch('/api/imf_inflation')
       paper_bgcolor: 'white'
     };
 
-    Plotly.newPlot('inflation_chart', traces, layout);
+    Plotly.newPlot('inflation_chart', traces, layout, {responsive: true});
 
-    const boxTraces = countries.map(countryName => {
-      return {
-        y: allSeries[countryName],
-        type: 'box',
-        name: countryName,
-        boxpoints: 'outliers'
-      };
-    });
+    const boxTraces = countries.map(countryName => ({
+      y: allSeries[countryName],
+      type: 'box',
+      name: countryName,
+      boxpoints: 'outliers'
+    }));
 
     const boxLayout = {
       title: 'IMF Inflation Distribution (Boxplot)',
@@ -112,31 +84,27 @@ fetch('/api/imf_inflation')
       paper_bgcolor: 'white'
     };
 
-    Plotly.newPlot('inflation_boxplot_chart', boxTraces, boxLayout);
+    Plotly.newPlot('inflation_boxplot_chart', boxTraces, boxLayout, {responsive: true});
   })
   .catch(err => {
     console.error('Error loading /api/imf_inflation:', err);
   });
 
-
-// =============== 2. IMF GDP Growth over Years (Line plot) ===============
+/* IMF GDP growth line plot */
 fetch('/api/imf_gdp_growth')
   .then(r => r.json())
   .then(data => {
-
     const years = data.years;
     const countries = data.countries;
     const allSeries = data.values;
 
-    const traces = countries.map(countryName => {
-      return {
-        x: years,
-        y: allSeries[countryName],
-        mode: 'lines+markers',
-        type: 'scatter',
-        name: countryName
-      };
-    });
+    const traces = countries.map(countryName => ({
+      x: years,
+      y: allSeries[countryName],
+      mode: 'lines+markers',
+      type: 'scatter',
+      name: countryName
+    }));
 
     const layout = {
       title: 'IMF GDP Growth (% change)',
@@ -146,18 +114,16 @@ fetch('/api/imf_gdp_growth')
       paper_bgcolor: 'white'
     };
 
-    Plotly.newPlot('gdp_chart', traces, layout);
+    Plotly.newPlot('gdp_chart', traces, layout, {responsive: true});
   })
   .catch(err => {
     console.error('Error loading /api/imf_gdp_growth:', err);
   });
 
-
-// =============== 3. GDP Growth vs Inflation (Scatter) ===============
+/* GDP Growth vs Inflation scatter */
 fetch('/api/imf_scatter')
   .then(r => r.json())
   .then(data => {
-
     const pts = data.points;
 
     const grouped = {};
@@ -170,16 +136,15 @@ fetch('/api/imf_scatter')
       grouped[p.country].text.push(`${p.country} ${p.year}`);
     });
 
-    const traces = Object.keys(grouped).map(countryName => {
-      return {
-        x: grouped[countryName].x,
-        y: grouped[countryName].y,
-        text: grouped[countryName].text,
-        mode: 'markers',
-        type: 'scatter',
-        name: countryName
-      };
-    });
+    const traces = Object.keys(grouped).map(countryName => ({
+      x: grouped[countryName].x,
+      y: grouped[countryName].y,
+      text: grouped[countryName].text,
+      mode: 'markers',
+      type: 'scatter',
+      name: countryName,
+      hoverinfo: 'text'
+    }));
 
     const layout = {
       title: 'GDP Growth vs Inflation',
@@ -189,14 +154,12 @@ fetch('/api/imf_scatter')
       paper_bgcolor: 'white'
     };
 
-    Plotly.newPlot('scatter_chart', traces, layout);
+    Plotly.newPlot('scatter_chart', traces, layout, {responsive: true});
   })
   .catch(err => {
     console.error('Error loading /api/imf_scatter:', err);
   });
 
 </script>
-=======
->>>>>>> 7b5055b0f30d929aec82fb95b79f7e3dc7ab8c07
-{% endblock %}
 
+{% endblock %}
