@@ -63,13 +63,7 @@ fetch('/api/cpi_data')
       line: { color: '#007bff' }
     };
 
-    const layout = {
-      title: 'Food CPI Over Time',
-      xaxis: { title: 'Date' },
-      yaxis: { title: 'Index (2015 = 100)' },
-      plot_bgcolor: 'white',
-      paper_bgcolor: 'white'
-    };
+
 
     Plotly.newPlot('cpi-chart', [trace], layout);
   });
@@ -202,5 +196,7 @@ fetch('/api/imf_scatter')
   });
 
 </script>
+=======
+>>>>>>> 7b5055b0f30d929aec82fb95b79f7e3dc7ab8c07
 {% endblock %}
 
