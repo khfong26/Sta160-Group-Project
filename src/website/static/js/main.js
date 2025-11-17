@@ -1,0 +1,117 @@
+﻿/* src/website/static/js/main.js
+   Chart loaders, filter wiring, and safe updates.
+*/
+
+// helper: do a GET and optionally attach query params from an object
+async function getData(url, params = null) {
+    let full = url;
+    if (params && Object.keys(params).length) {
+        const qs = new URLSearchParams(params);
+        full = ${url}?;
+    }
+    const res = await fetch(full);
+    return await res.json();
+}
+
+// salary: accept optional filters object { location, job }
+async function loadSalaryChart(filters = {}) {
+    const data = await getData("/api/salary", filters);
+
+    const trace = {
+        x: data.salary || [],
+        type: "histogram",
+        marker: { color: "#0d6efd" }
+    };
+    const layout = {
+        title: "Salary Distribution",
+        xaxis: { title: "Salary (USD)" },
+        margin: { t: 40, l: 40, r: 20, b: 40 }
+    };
+
+    const el = document.getElementById("chart-salary");
+    if (!el) return;
+
+    // If chart already exists, use Plotly.react to update; otherwise create it.
+    if (el.data && el.data.length) {
+        Plotly.react(el, [trace], layout);
+    } else {
+        Plotly.newPlot(el, [trace], layout, { responsive: true });
+    }
+}
+
+// skills
+async function loadSkillsChart() {
+    const data = await getData("/api/skills");
+
+    Plotly.newPlot("chart-skills", [{
+        x: data.skill || [],
+        y: data.count || [],
+        type: "bar",
+        marker: { color: "#198754" }
+    }], {
+        title: "Top Skills",
+        xaxis: { title: "Skill" },
+        yaxis: { title: "Count" },
+        margin: { t: 40, l: 40, r: 20, b: 120 }
+    }, { responsive: true });
+}
+
+// trends
+async function loadTrendsChart() {
+    const data = await getData("/api/trends");
+
+    Plotly.newPlot("chart-trends", [{
+        x: data.date || [],
+        y: data.postings || [],
+        mode: "lines+markers",
+        line: { color: "#fd7e14" }
+    }], {
+        title: "Job Posting Trends",
+        xaxis: { title: "Date" },
+        yaxis: { title: "Number of Postings" },
+        margin: { t: 40, l: 40, r: 20, b: 40 }
+    }, { responsive: true });
+}
+
+// small debounce helper
+const debounce = (fn, wait = 300) => {
+    let t;
+    return (...args) => {
+        clearTimeout(t);
+        t = setTimeout(() => fn(...args), wait);
+    };
+};
+
+// single DOMContentLoaded listener  add filter wiring here
+document.addEventListener("DOMContentLoaded", () => {
+    // initial loads
+    if (document.getElementById("chart-salary")) loadSalaryChart();
+    if (document.getElementById("chart-skills")) loadSkillsChart();
+    if (document.getElementById("chart-trends")) loadTrendsChart();
+
+    // filter inputs  ensure these exist in the page (e.g. salary.html)
+    const locationFilter = document.getElementById("locationFilter");
+    const jobFilter = document.getElementById("jobFilter");
+
+    // debounced updater that reads filter values and reloads the salary chart
+    const updateSalaryWithFilters = debounce(() => {
+        const filters = {};
+        if (locationFilter && locationFilter.value) filters.location = locationFilter.value;
+        if (jobFilter && jobFilter.value) filters.job = jobFilter.value;
+        loadSalaryChart(filters);
+    }, 300);
+
+    if (locationFilter) {
+        locationFilter.addEventListener("change", (e) => {
+            console.log("Location changed:", e.target.value);
+            updateSalaryWithFilters();
+        });
+    }
+
+    if (jobFilter) {
+        jobFilter.addEventListener("change", (e) => {
+            console.log("Job changed:", e.target.value);
+            updateSalaryWithFilters();
+        });
+    }
+});
