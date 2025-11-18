@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Job Market Dashboard</h2>
+
+<div class="mb-4 p-3 bg-white shadow-sm rounded">
+    <h5>Salary Distribution</h5>
+    <div id="chart-salary" style="height:350px;"></div>
+</div>
+
+<div class="mb-4 p-3 bg-white shadow-sm rounded">
+    <h5>Top Skills</h5>
+    <div id="chart-skills" style="height:350px;"></div>
+</div>
+
+<div class="mb-4 p-3 bg-white shadow-sm rounded">
+    <h5>Job Posting Trends</h5>
+    <div id="chart-trends" style="height:350px;"></div>
+</div>
+{% endblock %}
