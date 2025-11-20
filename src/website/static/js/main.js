@@ -7,7 +7,7 @@ async function getData(url, params = null) {
     let full = url;
     if (params && Object.keys(params).length) {
         const qs = new URLSearchParams(params);
-        full = ${url}?;
+        full = `${url}?${qs}`;
     }
     const res = await fetch(full);
     return await res.json();
@@ -20,15 +20,20 @@ async function loadSalaryChart(filters = {}) {
     const trace = {
         x: data.salary || [],
         type: "histogram",
-        marker: { color: "#0d6efd" }
+        marker: { color: "#4f46e5" }, // Indigo-600
+        hovertemplate: "Salary: $%{x}<br>Count: %{y} jobs<extra></extra>"
     };
     const layout = {
         title: "Salary Distribution",
         xaxis: { title: "Salary (USD)" },
-        margin: { t: 40, l: 40, r: 20, b: 40 }
+        yaxis: { title: "Count" },
+        margin: { t: 40, l: 40, r: 20, b: 40 },
+        paper_bgcolor: "rgba(0,0,0,0)",
+        plot_bgcolor: "rgba(0,0,0,0)",
+        font: { family: 'Inter, sans-serif' }
     };
 
-    const el = document.getElementById("chart-salary");
+    const el = document.getElementById("chart-salary") || document.getElementById("salary-detail-chart");
     if (!el) return;
 
     // If chart already exists, use Plotly.react to update; otherwise create it.
@@ -43,33 +48,48 @@ async function loadSalaryChart(filters = {}) {
 async function loadSkillsChart() {
     const data = await getData("/api/skills");
 
-    Plotly.newPlot("chart-skills", [{
+    const el = document.getElementById("chart-skills") || document.getElementById("skills-detail-chart");
+    if (!el) return;
+
+    Plotly.newPlot(el, [{
         x: data.skill || [],
         y: data.count || [],
         type: "bar",
-        marker: { color: "#198754" }
+        marker: { color: "#10b981" }, // Emerald-500
+        hovertemplate: "Skill: %{x}<br>Count: %{y}<extra></extra>"
     }], {
         title: "Top Skills",
         xaxis: { title: "Skill" },
         yaxis: { title: "Count" },
-        margin: { t: 40, l: 40, r: 20, b: 120 }
+        margin: { t: 40, l: 40, r: 20, b: 120 },
+        paper_bgcolor: "rgba(0,0,0,0)",
+        plot_bgcolor: "rgba(0,0,0,0)",
+        font: { family: 'Inter, sans-serif' }
     }, { responsive: true });
 }
 
 // trends
-async function loadTrendsChart() {
-    const data = await getData("/api/trends");
+async function loadTrendsChart(filters = {}) {
+    const data = await getData("/api/trends", filters);
 
-    Plotly.newPlot("chart-trends", [{
+    const el = document.getElementById("chart-trends") || document.getElementById("trends-detail-chart");
+    if (!el) return;
+
+    Plotly.newPlot(el, [{
         x: data.date || [],
         y: data.postings || [],
         mode: "lines+markers",
-        line: { color: "#fd7e14" }
+        line: { color: "#f97316", width: 3 }, // Orange-500
+        marker: { size: 6 },
+        hovertemplate: "Date: %{x}<br>Postings: %{y}<extra></extra>"
     }], {
         title: "Job Posting Trends",
         xaxis: { title: "Date" },
-        yaxis: { title: "Number of Postings" },
-        margin: { t: 40, l: 40, r: 20, b: 40 }
+        yaxis: { title: "Count" },
+        margin: { t: 40, l: 40, r: 20, b: 40 },
+        paper_bgcolor: "rgba(0,0,0,0)",
+        plot_bgcolor: "rgba(0,0,0,0)",
+        font: { family: 'Inter, sans-serif' }
     }, { responsive: true });
 }
 
@@ -85,15 +105,14 @@ const debounce = (fn, wait = 300) => {
 // single DOMContentLoaded listener  add filter wiring here
 document.addEventListener("DOMContentLoaded", () => {
     // initial loads
-    if (document.getElementById("chart-salary")) loadSalaryChart();
-    if (document.getElementById("chart-skills")) loadSkillsChart();
-    if (document.getElementById("chart-trends")) loadTrendsChart();
+    if (document.getElementById("chart-salary") || document.getElementById("salary-detail-chart")) loadSalaryChart();
+    if (document.getElementById("chart-skills") || document.getElementById("skills-detail-chart")) loadSkillsChart();
+    if (document.getElementById("chart-trends") || document.getElementById("trends-detail-chart")) loadTrendsChart();
 
-    // filter inputs  ensure these exist in the page (e.g. salary.html)
+    // Salary Filters
     const locationFilter = document.getElementById("locationFilter");
     const jobFilter = document.getElementById("jobFilter");
 
-    // debounced updater that reads filter values and reloads the salary chart
     const updateSalaryWithFilters = debounce(() => {
         const filters = {};
         if (locationFilter && locationFilter.value) filters.location = locationFilter.value;
@@ -102,16 +121,27 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 300);
 
     if (locationFilter) {
-        locationFilter.addEventListener("change", (e) => {
-            console.log("Location changed:", e.target.value);
-            updateSalaryWithFilters();
-        });
+        locationFilter.addEventListener("change", updateSalaryWithFilters);
+    }
+    if (jobFilter) {
+        jobFilter.addEventListener("change", updateSalaryWithFilters);
     }
 
-    if (jobFilter) {
-        jobFilter.addEventListener("change", (e) => {
-            console.log("Job changed:", e.target.value);
-            updateSalaryWithFilters();
-        });
+    // Trends Filters
+    const trendsLocationFilter = document.getElementById("trendsLocationFilter");
+    const trendsJobFilter = document.getElementById("trendsJobFilter");
+
+    const updateTrendsWithFilters = debounce(() => {
+        const filters = {};
+        if (trendsLocationFilter && trendsLocationFilter.value) filters.location = trendsLocationFilter.value;
+        if (trendsJobFilter && trendsJobFilter.value) filters.job = trendsJobFilter.value;
+        loadTrendsChart(filters);
+    }, 300);
+
+    if (trendsLocationFilter) {
+        trendsLocationFilter.addEventListener("change", updateTrendsWithFilters);
+    }
+    if (trendsJobFilter) {
+        trendsJobFilter.addEventListener("change", updateTrendsWithFilters);
     }
 });
