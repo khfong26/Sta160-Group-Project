@@ -2,12 +2,33 @@
 {% block title %}Home — Job Market Dashboard{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center mt-5">
-  <div class="col-lg-8">
-    <div class="bg-white shadow-sm p-4 rounded text-center">
-      <h1 class="mb-3">Job Market Analytics Dashboard</h1>
-      <p class="lead mb-4">Explore salaries, job skills, and market trends across the U.S.</p>
-      <a href="/dashboard" class="btn btn-primary">Go to Dashboard</a>
+<div class="hero">
+  <h1>Job Market Analytics Dashboard</h1>
+  <p>Explore real-time insights into salaries, top skills, and market trends across the U.S. tech landscape.</p>
+  <a href="/dashboard" class="btn btn-light btn-lg">Go to Dashboard</a>
+</div>
+
+<div class="row g-4">
+  <div class="col-md-4">
+    <div class="card p-4 h-100">
+      <h3>💰 Salaries</h3>
+      <p class="text-muted">Analyze salary distributions by location and job title to understand compensation trends.
+      </p>
+      <a href="/salary" class="text-primary fw-bold">View Salaries &rarr;</a>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card p-4 h-100">
+      <h3>🛠️ Skills</h3>
+      <p class="text-muted">Discover the most in-demand skills and technologies required by top employers.</p>
+      <a href="/skills" class="text-primary fw-bold">View Skills &rarr;</a>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card p-4 h-100">
+      <h3>📈 Trends</h3>
+      <p class="text-muted">Track job posting volumes over time to identify emerging market opportunities.</p>
+      <a href="/trends" class="text-primary fw-bold">View Trends &rarr;</a>
     </div>
   </div>
 </div>
