@@ -84,7 +84,7 @@ def skills_api():
     
     # Extract skills
     all_skills = []
-    for skills_str in df['skills'].dropna():
+    for skills_str in df['parsed_skills'].dropna():
         # Assuming comma separated
         skills = [s.strip() for s in skills_str.split(',')]
         all_skills.extend(skills)
