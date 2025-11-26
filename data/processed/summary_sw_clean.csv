@@ -1,0 +1,5 @@
+state,total_jobs,jobs_with_salary,avg_min_salary,avg_max_salary,remote_jobs
+California,500,387,"$132,346","$220,433",84
+New York,500,427,"$133,855","$193,976",121
+Texas,500,308,"$122,183","$192,549",110
+TOTAL,1500,1122,"$130,131","$202,710",315

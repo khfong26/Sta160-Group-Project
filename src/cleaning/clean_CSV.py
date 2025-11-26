@@ -106,8 +106,14 @@ def clean_jobs(input_name, output_name):
     print(f"✓ Saved cleaned: {output_name}\n")
 
 # run this for all all CSV files that jobspy outputs 
-clean_jobs("california_jobs.csv", "california_clean.csv")
-clean_jobs("newyork_jobs.csv", "newyork_clean.csv")
-clean_jobs("texas_jobs.csv", "texas_clean.csv")
-clean_jobs("all_states_jobs.csv", "all_states_clean.csv")
-clean_jobs("summary_report.csv", "summary_clean.csv")
+clean_jobs("../data/raw/california_software.csv", "ca_sw_clean.csv")
+clean_jobs("../data/raw/newyork_software.csv", "ny_sw_clean.csv")
+clean_jobs("../data/raw/texas_software.csv", "tx_sw_clean.csv")
+clean_jobs("../data/raw/all_states_software.csv", "all_sw_clean.csv")
+clean_jobs("../data/raw/summary_report_software.csv", "summary_sw_clean.csv")
+
+clean_jobs("../data/raw/california_db.csv", "ca_db_clean.csv")
+clean_jobs("../data/raw/newyork_db.csv", "ny_db_clean.csv")
+clean_jobs("../data/raw/texas_db.csv", "tx_db_clean.csv")
+clean_jobs("../data/raw/all_states_db.csv", "all_db_clean.csv")
+clean_jobs("../data/raw/summary_report_db.csv", "summary_db_clean.csv")
