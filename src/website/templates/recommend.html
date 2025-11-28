@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container mt-5">
+    <h2 class="mb-4 text-center">Upload Your Resume for Job Recommendations</h2>
+
+    <!-- Upload Form -->
+    <form action="/recommend" method="POST" enctype="multipart/form-data" class="text-center">
+        <input type="file" name="resume" class="form-control mb-3" required>
+        <button type="submit" class="btn btn-primary">Get Recommendations</button>
+    </form>
+
+    <!-- Error Message -->
+    {% if error %}
+    <div class="alert alert-danger mt-4 text-center">
+        {{ error }}
+    </div>
+    {% endif %}
+
+    <!-- Results Section -->
+    {% if results %}
+    <hr class="my-5">
+
+    <h3 class="mb-3">Top Recommended Jobs</h3>
+
+    <div class="list-group">
+        {% for job in results %}
+        <div class="list-group-item">
+
+            <h5 class="mb-1">
+                <strong>{{ job["title"] }}</strong>
+            </h5>
+
+            <p class="mb-1">
+                <strong>Company:</strong> {{ job["company"] }} <br>
+                <strong>Location:</strong> {{ job["location"] }}
+            </p>
+
+            {% if job["job_url"] %}
+            <a href="{{ job['job_url'] }}" target="_blank" class="btn btn-sm btn-outline-primary mt-2">
+                View Job Posting
+            </a>
+            {% endif %}
+
+        </div>
+        {% endfor %}
+    </div>
+
+    {% endif %}
+</div>
+
+{% endblock %}
