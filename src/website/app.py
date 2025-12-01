@@ -8,7 +8,9 @@ REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 if REPO_ROOT not in sys.path:
     sys.path.insert(0, REPO_ROOT)
 
-from api.data_loader import load_all_jobs_combined
+from api.data_loader import load_all_states_data
+from src.analysis.recommendation_model import recommend_jobs, extract_resume_text
+
 
 app = Flask(__name__)
 
@@ -41,6 +43,26 @@ def methodology_page():
 @app.route("/team")
 def team_page():
     return render_template("team.html")
+
+@app.route("/recommend", methods=["GET", "POST"])
+def recommend():
+    if request.method == "POST":
+        resume_file = request.files.get("resume")
+
+        if not resume_file:
+            return render_template("recommend.html", results=None, error="No file uploaded")
+
+        # Convert uploaded resume to text (PDF or TXT)
+        resume_text = extract_resume_text(resume_file)
+
+        # Run recommendation model
+        results = recommend_jobs(resume_text).to_dict(orient="records")
+
+        return render_template("recommend.html", results=results, error=None)
+
+    return render_template("recommend.html", results=None, error=None)
+
+
 
 
 # API Routes (JSON Data for Charts)
