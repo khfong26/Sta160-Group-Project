@@ -8,11 +8,13 @@ REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 if REPO_ROOT not in sys.path:
     sys.path.insert(0, REPO_ROOT)
 
-from api.data_loader import load_all_jobs_combined
+from api.data_loader import load_all_states_data
+from src.analysis.recommendation_model import recommend_jobs, extract_resume_text
+
 
 app = Flask(__name__)
 
-# Front end routes
+# front end
 
 @app.route("/")
 def home():
@@ -42,163 +44,109 @@ def methodology_page():
 def team_page():
     return render_template("team.html")
 
+@app.route("/recommend", methods=["GET", "POST"])
+def recommend():
+    if request.method == "POST":
+        resume_file = request.files.get("resume")
+
+        if not resume_file:
+            return render_template("recommend.html", results=None, error="No file uploaded")
+
+        # Convert uploaded resume to text (PDF or TXT)
+        resume_text = extract_resume_text(resume_file)
+
+        # Run recommendation model
+        results = recommend_jobs(resume_text).to_dict(orient="records")
+
+        return render_template("recommend.html", results=results, error=None)
+
+    return render_template("recommend.html", results=None, error=None)
+
+
+
 
 # API Routes (JSON Data for Charts)
 
 @app.route("/api/salary")
 def salary_api():
-    """API endpoint for salary data - Data Analyst and Business Analyst only."""
-    # Load YOUR job data only
-    df = load_all_jobs_combined()
+    df = load_all_states_data()
     
-    if df.empty:
-        print("No data loaded in salary_api")
-        return jsonify({'salary': []})
-    
-    print(f"Loaded {len(df)} jobs for salary analysis")
-    
-    # Get filters from request
+    # Filters
     location = request.args.get('location')
     job = request.args.get('job')
-    job_category = request.args.get('job_category')
     
-    # Apply job category filter
-    if job_category and job_category not in ["All", None, ""]:
-        df = df[df['job_category'] == job_category]
-        print(f"After job_category filter: {len(df)} jobs")
-    
-    # Apply location filter
-    if location and location not in ["All locations", None, ""]:
+    if location and location != "All locations":
         if location == "Remote":
+            # Check both location string and is_remote flag
             df = df[
                 (df['location'].str.contains("Remote", case=False, na=False)) | 
-                (df['is_remote'] == True) |
+                (df['is_remote'] == True) | 
                 (df['is_remote'] == "True")
             ]
-        elif location == "California":
-            df = df[df['state'] == 'California']
-        elif location == "New York":
-            df = df[df['state'] == 'New York']
-        elif location == "Texas":
-            df = df[df['state'] == 'Texas']
-        print(f"After location filter: {len(df)} jobs")
-    
-    # Apply job title filter
-    if job and job not in ["All jobs", None, ""]:
+        else:
+            df = df[df['location'].str.contains(location, case=False, na=False)]
+            
+    if job and job != "All jobs":
         df = df[df['title'].str.contains(job, case=False, na=False)]
-        print(f"After job title filter: {len(df)} jobs")
-    
+        
     # Calculate average salary
+    # Ensure numeric
     df['min_amount'] = pd.to_numeric(df['min_amount'], errors='coerce')
     df['max_amount'] = pd.to_numeric(df['max_amount'], errors='coerce')
     df = df.dropna(subset=['min_amount', 'max_amount'])
     
-    if df.empty:
-        print("No salary data after filtering")
-        return jsonify({'salary': []})
-    
+    # Calculate average for each row
     df['avg_salary'] = (df['min_amount'] + df['max_amount']) / 2
     
-    print(f"Returning {len(df)} salary values")
-    return jsonify({
-        'salary': df['avg_salary'].tolist()
-    })
-
+    return jsonify({'salary': df['avg_salary'].tolist()})
 
 @app.route("/api/skills")
 def skills_api():
-    """API endpoint for skills data - Data Analyst and Business Analyst only."""
-    df = load_all_jobs_combined()
+    df = load_all_states_data()
     
-    if df.empty:
-        print("No data loaded in skills_api")
-        return jsonify({'skill': [], 'count': []})
-    
-    print(f"Loaded {len(df)} jobs for skills analysis")
-    
-    # Filter by job category if provided
-    job_category = request.args.get('job_category')
-    if job_category and job_category not in ["All", None, ""]:
-        df = df[df['job_category'] == job_category]
-        print(f"After job_category filter: {len(df)} jobs")
-    
-    # Extract skills from parsed_skills column
+    # Extract skills
     all_skills = []
     for skills_str in df['parsed_skills'].dropna():
-        if pd.notna(skills_str) and str(skills_str).strip():
-            skills = [s.strip() for s in str(skills_str).split(',')]
-            all_skills.extend(skills)
-    
-    if not all_skills:
-        print("No skills found")
-        return jsonify({'skill': [], 'count': []})
-    
-    # Count skills and get top 20
+        # Assuming comma separated
+        skills = [s.strip() for s in skills_str.split(',')]
+        all_skills.extend(skills)
+        
     counts = Counter(all_skills)
-    most_common = counts.most_common(20)
+    most_common = counts.most_common(20) # Top 20
     
-    print(f"Returning {len(most_common)} top skills")
     return jsonify({
         'skill': [x[0] for x in most_common],
         'count': [x[1] for x in most_common]
     })
 
-
 @app.route("/api/trends")
 def trends_api():
-    """API endpoint for job posting trends - Data Analyst and Business Analyst only."""
-    df = load_all_jobs_combined()
-    
-    if df.empty:
-        print("No data loaded in trends_api")
-        return jsonify({'date': [], 'postings': []})
-    
-    print(f"Loaded {len(df)} jobs for trends analysis")
-    
-    # Get filters
+    df = load_all_states_data()
+
+    # Filters
     location = request.args.get('location')
     job = request.args.get('job')
-    job_category = request.args.get('job_category')
     
-    # Apply job category filter
-    if job_category and job_category not in ["All", None, ""]:
-        df = df[df['job_category'] == job_category]
-        print(f"After job_category filter: {len(df)} jobs")
-    
-    # Apply location filter
-    if location and location not in ["All locations", None, ""]:
+    if location and location != "All locations":
         if location == "Remote":
             df = df[
                 (df['location'].str.contains("Remote", case=False, na=False)) | 
-                (df['is_remote'] == True) |
+                (df['is_remote'] == True) | 
                 (df['is_remote'] == "True")
             ]
-        elif location == "California":
-            df = df[df['state'] == 'California']
-        elif location == "New York":
-            df = df[df['state'] == 'New York']
-        elif location == "Texas":
-            df = df[df['state'] == 'Texas']
-        print(f"After location filter: {len(df)} jobs")
-    
-    # Apply job title filter
-    if job and job not in ["All jobs", None, ""]:
+        else:
+            df = df[df['location'].str.contains(location, case=False, na=False)]
+            
+    if job and job != "All jobs":
         df = df[df['title'].str.contains(job, case=False, na=False)]
-        print(f"After job title filter: {len(df)} jobs")
     
-    # Convert date_posted to datetime
+    # Ensure date
     df['date_posted'] = pd.to_datetime(df['date_posted'], errors='coerce')
     df = df.dropna(subset=['date_posted'])
     
-    if df.empty:
-        print("No date data after filtering")
-        return jsonify({'date': [], 'postings': []})
-    
-    # Group by date and count postings
     daily_counts = df.groupby('date_posted').size().reset_index(name='postings')
     daily_counts = daily_counts.sort_values('date_posted')
     
-    print(f"Returning {len(daily_counts)} date points")
     return jsonify({
         'date': daily_counts['date_posted'].dt.strftime('%Y-%m-%d').tolist(),
         'postings': daily_counts['postings'].tolist()
