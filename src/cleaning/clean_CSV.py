@@ -152,3 +152,17 @@ clean_jobs("newyork_jobs.csv", "newyork_clean.csv")
 clean_jobs("texas_jobs.csv", "texas_clean.csv")
 clean_jobs("all_states_jobs.csv", "all_states_clean.csv")
 clean_jobs("summary_report.csv", "summary_clean.csv")
+
+# Clean Software Engineer files
+clean_jobs("california_software_engineer_jobs.csv", "california_software_engineer_clean.csv")
+clean_jobs("newyork_software_engineer_jobs.csv", "newyork_software_engineer_clean.csv")
+clean_jobs("texas_software_engineer_jobs.csv", "texas_software_engineer_clean.csv")
+clean_jobs("all_states_software_engineer_jobs.csv", "all_states_software_engineer_clean.csv")
+clean_jobs("software_engineer_summary_report.csv", "software_engineer_summary_clean.csv")
+
+# Clean Database Administrator files
+clean_jobs("california_database_administrator_jobs.csv", "california_database_administrator_clean.csv")
+clean_jobs("newyork_database_administrator_jobs.csv", "newyork_database_administrator_clean.csv")
+clean_jobs("texas_database_administrator_jobs.csv", "texas_database_administrator_clean.csv")
+clean_jobs("all_states_database_administrator_jobs.csv", "all_states_database_administrator_clean.csv")
+clean_jobs("database_administrator_summary_report.csv", "database_administrator_summary_clean.csv")
