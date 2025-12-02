@@ -138,15 +138,14 @@ def recommend_jobs(resume_text, top_k=5):
     )
 
     job_matrix = vectorizer.fit_transform(job_texts)
-
-    # 把简历里的技能拼到文本里，让 skills 在 TF-IDF 里更显眼
+    
     resume_skills = extract_resume_skills(resume_text)
     resume_for_tfidf = resume_text + " " + " ".join(resume_skills)
 
     resume_vec = vectorizer.transform([resume_for_tfidf])
     tfidf_scores = cosine_similarity(resume_vec, job_matrix).flatten()
 
-    # --- 5a. normalize tfidf to [0, 1] ---
+    # 5a. normalize tfidf to [0, 1]
     tfidf_min, tfidf_max = tfidf_scores.min(), tfidf_scores.max()
     if tfidf_max > tfidf_min:
         tfidf_norm = (tfidf_scores - tfidf_min) / (tfidf_max - tfidf_min)
