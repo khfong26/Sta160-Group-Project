@@ -2,51 +2,66 @@
 {% block content %}
 
 <div class="container mt-5">
+
     <h2 class="mb-4 text-center">Upload Your Resume for Job Recommendations</h2>
 
     <!-- Upload Form -->
-    <form action="/recommend" method="POST" enctype="multipart/form-data" class="text-center">
+    <form action="/recommend" method="POST" enctype="multipart/form-data" class="text-center mb-4">
         <input type="file" name="resume" class="form-control mb-3" required>
         <button type="submit" class="btn btn-primary">Get Recommendations</button>
     </form>
 
     <!-- Error Message -->
     {% if error %}
-    <div class="alert alert-danger mt-4 text-center">
+    <div class="alert alert-danger text-center">
         {{ error }}
     </div>
     {% endif %}
 
-    <!-- Results Section -->
+    <!-- Results -->
     {% if results %}
     <hr class="my-5">
 
     <h3 class="mb-3">Top Recommended Jobs</h3>
 
-    <div class="list-group">
+    <div class="row g-4">
         {% for job in results %}
-        <div class="list-group-item">
+        <div class="col-md-6">
+            <div class="card shadow-sm p-3 h-100">
 
-            <h5 class="mb-1">
-                <strong>{{ job["title"] }}</strong>
-            </h5>
+                <!-- Job Title -->
+                <h5><strong>{{ job.title }}</strong></h5>
 
-            <p class="mb-1">
-                <strong>Company:</strong> {{ job["company"] }} <br>
-                <strong>Location:</strong> {{ job["location"] }}
-            </p>
+                <!-- Company + Location -->
+                <p class="text-muted mb-2">
+                    <strong>{{ job.company }}</strong><br>
+                    {{ job.location }}
+                </p>
 
-            {% if job["job_url"] %}
-            <a href="{{ job['job_url'] }}" target="_blank" class="btn btn-sm btn-outline-primary mt-2">
-                View Job Posting
-            </a>
-            {% endif %}
+                <!-- Confidence Score -->
+                {% if job.final_score %}
+                <p class="mb-1">
+                    <strong>Match Score:</strong>
+                    {{ (job.final_score * 100) | round(1) }}%
+                </p>
+                {% endif %}
 
+                <!-- View Job Button -->
+                {% if job.job_url %}
+                <a href="{{ job.job_url }}" 
+                   target="_blank" 
+                   class="btn btn-outline-primary btn-sm mt-2">
+                    View Job Posting
+                </a>
+                {% endif %}
+
+            </div>
         </div>
         {% endfor %}
     </div>
 
     {% endif %}
+
 </div>
 
 {% endblock %}
