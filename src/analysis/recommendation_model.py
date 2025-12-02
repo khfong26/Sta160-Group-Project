@@ -1,10 +1,19 @@
 import os
+import json
 import pandas as pd
+import re
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import PyPDF2
 
-# 1. Load job dataset (absolute path so Flask can find file)
+# load skills
+SKILLS_JSON_PATH = os.path.join(os.path.dirname(__file__), "..", "cleaning", "skills.json")
+
+with open(SKILLS_JSON_PATH, "r") as f:
+    SKILL_TERMS = json.load(f)
+
+
+# load all the job data
 def load_job_data():
     base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
     folder_path = os.path.join(base_dir, "data", "processed")
@@ -28,18 +37,18 @@ def load_job_data():
 
     combined = pd.concat(dfs, ignore_index=True)
 
-    # Drop duplicates (VERY important)
+    # Remove duplicates
     combined = combined.drop_duplicates(
         subset=["title", "company", "description"], keep="first"
     )
 
     return combined
 
-# 2. Extract text from uploaded resume. Supports BOTH .txt and .pdf
+
+# extract the resume text
 def extract_resume_text(resume_file):
     filename = resume_file.filename.lower()
 
-    #if its a PDF file
     if filename.endswith(".pdf"):
         reader = PyPDF2.PdfReader(resume_file)
         text = ""
@@ -47,22 +56,98 @@ def extract_resume_text(resume_file):
             text += page.extract_text() or ""
         return text
 
-    # Otherwise assume text file
-    else:
-        return resume_file.read().decode("utf-8", errors="ignore")
+    return resume_file.read().decode("utf-8", errors="ignore")
 
-# 3. Build TF-IDF recommender - actual recommendation stuff here
+
+# parse experience
+def extract_years_of_experience(resume_text):
+    resume_lower = resume_text.lower()
+
+    # If resume mentions "intern" assume near 0 years
+    if "intern" in resume_lower:
+        return 0
+
+    match = re.search(r"(\d+)\+?\s*years?", resume_lower)
+    if match:
+        return int(match.group(1))
+
+    # Default assumption
+    return 1
+
+
+# extract skills
+def extract_resume_skills(resume_text):
+    resume_lower = resume_text.lower()
+    found = {s for s in SKILL_TERMS if s.lower() in resume_lower}
+    return found
+
+
+# range of experience
+def parse_min_years(exp_range):
+    if pd.isna(exp_range):
+        return 0
+    match = re.search(r"(\d+)", str(exp_range))
+    return int(match.group(1)) if match else 0
+
+
+# recommendation function
 def recommend_jobs(resume_text, top_k=5):
+    # Load data
     jobs = load_job_data()
 
-    # Use job descriptions for comparison
-    job_texts = jobs["description"].fillna("")
+    # 1. Identify resume experience level
+    user_years = extract_years_of_experience(resume_text)
 
-    vectorizer = TfidfVectorizer(stop_words="english")
+    # 2. Filter out senior roles first
+    senior_terms = ["senior", "sr.", "lead", "principal", "director", "manager"]
+    pattern = "|".join(senior_terms)
+
+    jobs = jobs[~jobs["title"].str.lower().str.contains(pattern, na=False)]
+
+    # 3. Filter by experience range
+    jobs["min_exp"] = jobs["experience_range"].apply(parse_min_years)
+    jobs = jobs[jobs["min_exp"] <= user_years + 1]
+
+    # 4. Build TF-IDF using title + skills + description
+    job_texts = (
+        jobs["title"].fillna("") + " " +
+        jobs["skills"].fillna("") + " " +
+        jobs["description"].fillna("")
+    )
+
+    vectorizer = TfidfVectorizer(
+        stop_words="english",
+        max_df=0.85,
+        min_df=3,
+        sublinear_tf=True,
+        ngram_range=(1, 2)
+    )
+
     job_matrix = vectorizer.fit_transform(job_texts)
-
     resume_vec = vectorizer.transform([resume_text])
-    scores = cosine_similarity(resume_vec, job_matrix).flatten()
 
-    jobs["score"] = scores
-    return jobs.sort_values("score", ascending=False).head(top_k)
+    tfidf_scores = cosine_similarity(resume_vec, job_matrix).flatten()
+    jobs["tfidf_score"] = tfidf_scores
+
+    # 5. Skill matching score
+    resume_skills = extract_resume_skills(resume_text)
+
+    def skill_overlap(job_skill_field):
+        if pd.isna(job_skill_field):
+            return 0
+        job_skillset = {s.strip().lower() for s in str(job_skill_field).split(",")}
+        return len(resume_skills.intersection(job_skillset))
+
+    jobs["skill_score"] = jobs["skills"].apply(skill_overlap)
+
+    # -----------------------------------------------------
+    # 6. Final combined score
+    # -----------------------------------------------------
+    jobs["final_score"] = (
+        0.75 * jobs["tfidf_score"] +
+        0.20 * jobs["skill_score"] +
+        0.05 * (1 / (1 + jobs["min_exp"]))
+    )
+
+    # Return best jobs
+    return jobs.sort_values("final_score", ascending=False).head(top_k)
