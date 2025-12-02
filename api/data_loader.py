@@ -46,3 +46,4 @@ def load_skills_data():
             "parsed_skills column is missing from all_states_clean.csv")
 
     return df
+
