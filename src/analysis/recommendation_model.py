@@ -7,8 +7,33 @@ import PyPDF2
 # 1. Load job dataset (absolute path so Flask can find file)
 def load_job_data():
     base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-    csv_path = os.path.join(base_dir, "data", "processed", "all_states_clean.csv")
-    return pd.read_csv(csv_path)
+    folder_path = os.path.join(base_dir, "data", "processed")
+
+    all_files = [
+        os.path.join(folder_path, f)
+        for f in os.listdir(folder_path)
+        if f.endswith(".csv")
+    ]
+
+    dfs = []
+    for file in all_files:
+        try:
+            df = pd.read_csv(file)
+            dfs.append(df)
+        except Exception as e:
+            print(f"Error reading {file}: {e}")
+
+    if not dfs:
+        raise ValueError("No CSV files found in processed folder.")
+
+    combined = pd.concat(dfs, ignore_index=True)
+
+    # Drop duplicates (VERY important)
+    combined = combined.drop_duplicates(
+        subset=["title", "company", "description"], keep="first"
+    )
+
+    return combined
 
 # 2. Extract text from uploaded resume. Supports BOTH .txt and .pdf
 def extract_resume_text(resume_file):
