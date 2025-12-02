@@ -5,20 +5,17 @@
 
     <h2 class="mb-4 text-center">Upload Your Resume for Job Recommendations</h2>
 
-    <!-- Upload Form -->
     <form action="/recommend" method="POST" enctype="multipart/form-data" class="text-center mb-4">
         <input type="file" name="resume" class="form-control mb-3" required>
         <button type="submit" class="btn btn-primary">Get Recommendations</button>
     </form>
 
-    <!-- Error Message -->
     {% if error %}
     <div class="alert alert-danger text-center">
         {{ error }}
     </div>
     {% endif %}
 
-    <!-- Results -->
     {% if results %}
     <hr class="my-5">
 
