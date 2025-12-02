@@ -155,11 +155,11 @@ def recommend_jobs(resume_text, top_k=5):
 
     # 6. Final combined score for ranking
     jobs["final_score"] = (
-        0.60 * jobs["tfidf_score"] +
-        0.30 * jobs["skill_score"] +
+        0.50 * jobs["tfidf_score"] +
+        0.40 * jobs["skill_score"] +
         0.10 * (1 / (1 + jobs["min_exp"]))
     )
-    #can change weights, we decided on 60 30 10
+    #can change weights depending on what you want to be emphasized (skill, etc)
 
     # Return the top matching jobs
     return jobs.sort_values("final_score", ascending=False).head(top_k)
