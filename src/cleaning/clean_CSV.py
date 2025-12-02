@@ -152,3 +152,17 @@ clean_jobs("newyork_jobs.csv", "newyork_clean.csv")
 clean_jobs("texas_jobs.csv", "texas_clean.csv")
 clean_jobs("all_states_jobs.csv", "all_states_clean.csv")
 clean_jobs("summary_report.csv", "summary_clean.csv")
+
+# Clean Software Engineer files
+clean_jobs("california_software_engineer_jobs.csv", "california_software_engineer_clean.csv")
+clean_jobs("newyork_software_engineer_jobs.csv", "newyork_software_engineer_clean.csv")
+clean_jobs("texas_software_engineer_jobs.csv", "texas_software_engineer_clean.csv")
+clean_jobs("all_states_software_engineer_jobs.csv", "all_states_software_engineer_clean.csv")
+clean_jobs("software_engineer_summary_report.csv", "software_engineer_summary_clean.csv")
+
+# Clean Machine Learning Engineer files
+clean_jobs("california_machine_learning_engineer_jobs.csv", "california_machine_learning_engineer_clean.csv")
+clean_jobs("newyork_machine_learning_engineer_jobs.csv", "newyork_machine_learning_engineer_clean.csv")
+clean_jobs("texas_machine_learning_engineer_jobs.csv", "texas_machine_learning_engineer_clean.csv")
+clean_jobs("all_states_machine_learning_engineer_jobs.csv", "all_states_machine_learning_engineer_clean.csv")
+clean_jobs("machine_learning_engineer_summary_report.csv", "machine_learning_engineer_summary_clean.csv")
