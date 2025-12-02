@@ -53,10 +53,19 @@ def recommend():
             return render_template("recommend.html", results=None, error="No file uploaded")
 
         # Convert uploaded resume to text (PDF or TXT)
-        resume_text = extract_resume_text(resume_file)
+        try:
+            resume_text = extract_resume_text(resume_file)
+        except Exception as e:
+            return render_template("recommend.html", results=None, error=f"Could not read resume: {e}")
 
         # Run recommendation model
-        results = recommend_jobs(resume_text).to_dict(orient="records")
+        df_results = recommend_jobs(resume_text)
+
+        # Only keep columns you want to show users
+        keep_cols = ["title", "company", "location", "description", "job_url", "final_score"]
+        df_results = df_results[[c for c in keep_cols if c in df_results.columns]]
+
+        results = df_results.to_dict(orient="records")
 
         return render_template("recommend.html", results=results, error=None)
 
