@@ -4,6 +4,24 @@
 {% block content %}
 <h2 class="mb-4">Skills Analysis</h2>
 
+<div class="bg-white shadow-sm p-3 rounded mb-3">
+    <div class="d-flex flex-wrap align-items-center gap-2">
+        <div class="me-2">
+            <label for="skillsLocationFilter" class="form-label small mb-1">Location</label>
+            <select id="skillsLocationFilter" class="form-select form-select-sm">
+                <option value="">All locations</option>
+            </select>
+        </div>
+
+        <div>
+            <label for="skillsJobFilter" class="form-label small mb-1">Job Title</label>
+            <select id="skillsJobFilter" class="form-select form-select-sm">
+                <option value="">All jobs</option>
+            </select>
+        </div>
+    </div>
+</div>
+
 <div class="bg-white shadow-sm p-3 rounded">
     <div id="skills-detail-chart" style="height:400px;"></div>
 </div>

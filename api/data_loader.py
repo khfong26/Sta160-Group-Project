@@ -4,10 +4,39 @@ import os
 DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "data", "processed")
 
 
+# Global cache
+_ALL_STATES_DATA = None
+
 def load_all_states_data():
-    """Load the cleaned data for all states."""
-    path = os.path.join(DATA_DIR, "all_states_clean.csv")
-    return pd.read_csv(path)
+    """Load the cleaned data for all states from multiple files. Cached."""
+    global _ALL_STATES_DATA
+    if _ALL_STATES_DATA is not None:
+        return _ALL_STATES_DATA
+
+    files = [
+        "all_states_clean.csv",
+        "all_states_business_analyst_clean.csv",
+        "all_states_data_analyst_clean.csv",
+        "all_states_machine_learning_engineer_clean.csv",
+        "all_states_software_engineer_clean.csv",
+        "all_states_DS_PM_clean.csv"
+    ]
+    
+    dfs = []
+    for f in files:
+        path = os.path.join(DATA_DIR, f)
+        if os.path.exists(path):
+            try:
+                dfs.append(pd.read_csv(path))
+            except Exception as e:
+                print(f"Error loading {f}: {e}")
+    
+    if not dfs:
+        _ALL_STATES_DATA = pd.DataFrame()
+    else:
+        _ALL_STATES_DATA = pd.concat(dfs, ignore_index=True)
+        
+    return _ALL_STATES_DATA
 
 
 def load_california_data():

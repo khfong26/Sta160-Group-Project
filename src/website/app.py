@@ -84,10 +84,21 @@ def salary_api():
                 (df['is_remote'] == "True")
             ]
         else:
-            df = df[df['location'].str.contains(location, case=False, na=False)]
+            # Map full state names to abbreviations
+            loc_map = {
+                "California": "CA",
+                "New York": "NY",
+                "Texas": "TX"
+            }
+            search_term = loc_map.get(location, location)
+            df = df[df['location'].str.contains(search_term, case=False, na=False)]
             
     if job and job != "All jobs":
-        df = df[df['title'].str.contains(job, case=False, na=False)]
+        if job == "Software Engineer":
+            # Broaden Software Engineer to include specific roles
+            df = df[df['title'].str.contains("Software Engineer|DevOps|Full Stack|Backend|Frontend|Mobile|Embedded|Firmware", case=False, na=False, regex=True)]
+        else:
+            df = df[df['title'].str.contains(job, case=False, na=False)]
         
     # Calculate average salary
     # Ensure numeric
@@ -100,9 +111,54 @@ def salary_api():
     
     return jsonify({'salary': df['avg_salary'].tolist()})
 
+@app.route("/api/filters")
+def filters_api():
+    # Hardcoded lists based on available data
+    locations = ["California", "New York", "Texas", "Remote"]
+    titles = [
+        "Software Engineer", 
+        "Data Scientist",
+        "Data Analyst",
+        "Business Analyst",
+        "Machine Learning Engineer",
+        "Product Manager"
+    ]
+    
+    return jsonify({
+        'locations': locations,
+        'jobs': titles
+    })
+
 @app.route("/api/skills")
 def skills_api():
     df = load_all_states_data()
+    
+    # Filters
+    location = request.args.get('location')
+    job = request.args.get('job')
+    
+    if location and location != "All locations":
+        if location == "Remote":
+            df = df[
+                (df['location'].str.contains("Remote", case=False, na=False)) | 
+                (df['is_remote'] == True) | 
+                (df['is_remote'] == "True")
+            ]
+        else:
+            # Map full state names to abbreviations
+            loc_map = {
+                "California": "CA",
+                "New York": "NY",
+                "Texas": "TX"
+            }
+            search_term = loc_map.get(location, location)
+            df = df[df['location'].str.contains(search_term, case=False, na=False)]
+            
+    if job and job != "All jobs":
+        if job == "Software Engineer":
+            df = df[df['title'].str.contains("Software Engineer|DevOps|Full Stack|Backend|Frontend|Mobile|Embedded|Firmware", case=False, na=False, regex=True)]
+        else:
+            df = df[df['title'].str.contains(job, case=False, na=False)]
     
     # Extract skills
     all_skills = []
@@ -135,10 +191,20 @@ def trends_api():
                 (df['is_remote'] == "True")
             ]
         else:
-            df = df[df['location'].str.contains(location, case=False, na=False)]
+            # Map full state names to abbreviations
+            loc_map = {
+                "California": "CA",
+                "New York": "NY",
+                "Texas": "TX"
+            }
+            search_term = loc_map.get(location, location)
+            df = df[df['location'].str.contains(search_term, case=False, na=False)]
             
     if job and job != "All jobs":
-        df = df[df['title'].str.contains(job, case=False, na=False)]
+        if job == "Software Engineer":
+            df = df[df['title'].str.contains("Software Engineer|DevOps|Full Stack|Backend|Frontend|Mobile|Embedded|Firmware", case=False, na=False, regex=True)]
+        else:
+            df = df[df['title'].str.contains(job, case=False, na=False)]
     
     # Ensure date
     df['date_posted'] = pd.to_datetime(df['date_posted'], errors='coerce')
