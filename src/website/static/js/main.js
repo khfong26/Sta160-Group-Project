@@ -45,8 +45,8 @@ async function loadSalaryChart(filters = {}) {
 }
 
 // skills
-async function loadSkillsChart() {
-    const data = await getData("/api/skills");
+async function loadSkillsChart(filters = {}) {
+    const data = await getData("/api/skills", filters);
 
     const el = document.getElementById("chart-skills") || document.getElementById("skills-detail-chart");
     if (!el) return;
@@ -144,4 +144,52 @@ document.addEventListener("DOMContentLoaded", () => {
     if (trendsJobFilter) {
         trendsJobFilter.addEventListener("change", updateTrendsWithFilters);
     }
+
+    // Skills Filters
+    const skillsLocationFilter = document.getElementById("skillsLocationFilter");
+    const skillsJobFilter = document.getElementById("skillsJobFilter");
+
+    const updateSkillsWithFilters = debounce(() => {
+        const filters = {};
+        if (skillsLocationFilter && skillsLocationFilter.value) filters.location = skillsLocationFilter.value;
+        if (skillsJobFilter && skillsJobFilter.value) filters.job = skillsJobFilter.value;
+        loadSkillsChart(filters);
+    }, 300);
+
+    if (skillsLocationFilter) {
+        skillsLocationFilter.addEventListener("change", updateSkillsWithFilters);
+    }
+    if (skillsJobFilter) {
+        skillsJobFilter.addEventListener("change", updateSkillsWithFilters);
+    }
+
+    // Load filters dynamically
+    loadFilters();
 });
+
+async function loadFilters() {
+    const data = await getData("/api/filters");
+
+    const populateSelect = (id, items) => {
+        const select = document.getElementById(id);
+        if (!select) return;
+
+        // Keep the first option (All ...)
+        const firstOption = select.options[0];
+        select.innerHTML = '';
+        select.appendChild(firstOption);
+
+        items.forEach(item => {
+            const option = document.createElement('option');
+            option.value = item;
+            option.textContent = item;
+            select.appendChild(option);
+        });
+    };
+
+    const locationSelects = ['locationFilter', 'trendsLocationFilter', 'skillsLocationFilter'];
+    const jobSelects = ['jobFilter', 'trendsJobFilter', 'skillsJobFilter'];
+
+    locationSelects.forEach(id => populateSelect(id, data.locations));
+    jobSelects.forEach(id => populateSelect(id, data.jobs));
+}
