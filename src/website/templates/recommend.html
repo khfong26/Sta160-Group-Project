@@ -5,20 +5,17 @@
 
     <h2 class="mb-4 text-center">Upload Your Resume for Job Recommendations</h2>
 
-    <!-- Upload Form -->
     <form action="/recommend" method="POST" enctype="multipart/form-data" class="text-center mb-4">
         <input type="file" name="resume" class="form-control mb-3" required>
         <button type="submit" class="btn btn-primary">Get Recommendations</button>
     </form>
 
-    <!-- Error Message -->
     {% if error %}
     <div class="alert alert-danger text-center">
         {{ error }}
     </div>
     {% endif %}
 
-    <!-- Results -->
     {% if results %}
     <hr class="my-5">
 
@@ -29,16 +26,13 @@
         <div class="col-md-6">
             <div class="card shadow-sm p-3 h-100">
 
-                <!-- Job Title -->
                 <h5><strong>{{ job.title }}</strong></h5>
 
-                <!-- Company + Location -->
                 <p class="text-muted mb-2">
                     <strong>{{ job.company }}</strong><br>
                     {{ job.location }}
                 </p>
 
-                <!-- Confidence Score -->
                 {% if job.final_score %}
                 <p class="mb-1">
                     <strong>Match Score:</strong>
@@ -46,7 +40,6 @@
                 </p>
                 {% endif %}
 
-                <!-- View Job Button -->
                 {% if job.job_url %}
                 <a href="{{ job.job_url }}" 
                    target="_blank" 
