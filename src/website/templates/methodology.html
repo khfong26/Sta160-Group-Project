@@ -40,17 +40,17 @@
   <div class="col-12">
     <div class="card shadow-sm border-0">
       <div class="card-body">
-        <h4 class="card-title fw-bold mb-3">3. Recommendation Engine</h4>
+        <h4 class="card-title fw-bold mb-3">3. Recommendation Model</h4>
         <p class="card-text">
-          The core of our "Resume Match" feature is a content-based recommendation system built with
+          The core of our "Resume Match" feature is a content-based recommendation model built with
           <strong>scikit-learn</strong>.
           It matches your resume to job postings using a weighted scoring algorithm:
         </p>
         <ul class="list-group list-group-flush mb-3">
           <li class="list-group-item">
             <strong>TF-IDF Vectorization (55% weight):</strong> We convert both your resume and job descriptions (Title
-            + Skills + Description) into numerical vectors using Term Frequency-Inverse Document Frequency. This
-            captures the semantic similarity between your profile and the job.
+            + Skills + Description) into numerical vectors using Term Frequency-Inverse Document Frequency and compare them using cosine similarity. This
+            captures the textual similarity between your profile and the job.
           </li>
           <li class="list-group-item">
             <strong>Skill Overlap (35% weight):</strong> We calculate the percentage of required job skills that are
