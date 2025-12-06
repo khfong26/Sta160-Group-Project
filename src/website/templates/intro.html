@@ -13,7 +13,7 @@
           <p class="card-text">
             Our project aims to conduct an analysis of the job market across the states of 
             <strong>California, New York, and Texas</strong>. Using data scraped from 
-            <strong>Indeed.com</strong>, we analyzed job postings based on factors such as role, 
+            <strong>Indeed.com</strong>, we analyzed over 9,000 job postings based on factors such as role, 
             location, salary ranges, and skillsets. From our scraped data, we identified 
             patterns and overall trends across these roles.
           </p>
@@ -25,7 +25,7 @@
       <div class="card shadow-sm border-0">
         <div class="card-body">
           <p class="card-text">
-            Our analysis was built on a complete data pipeline that scrapes raw job listings 
+            Our analysis was built on a complete data pipeline (see Methodology Page) that scrapes raw job listings 
             from Indeed.com, cleans the raw CSV files into processed CSV files, and loads it 
             onto our dashboard, with a recommendation model page to give users the best 
             fitting jobs based on their resumes. The dashboard was developed using 
@@ -81,5 +81,22 @@
 
   </div>
 </div>
+
+<h3 class="mt-5 fw-bold">Key Findings</h3>
+
+<div class="col-12 mt-2">
+  <div class="card shadow-sm border-0">
+    <div class="card-body">
+      <ul class="card-text">
+        <li>California had the highest average salary ranges across all job categories.</li>
+        <li>Machine Learning Engineers earned the highest salaries, while Business Analysts had the lowest.</li>
+        <li>“Communication” was the most frequently listed skill overall across all job postings.</li>
+        <li>Technical skills varied by role: SQL dominated Data Analyst postings, while Python dominated Software and Machine Learning Engineer postings.</li>
+        <li>Skill requirements were consistent across states, with no major regional differences.</li>
+        <li>Most job postings were recent (within the last month), reflecting up-to-date market conditions.</li>
+      </ul>
+    </div>
+  </div>
+</div
 
 {% endblock %}
