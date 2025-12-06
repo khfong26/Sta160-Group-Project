@@ -2,17 +2,71 @@
 {% block title %}Methodology{% endblock %}
 
 {% block content %}
-<h2 class="mb-4">Methodology</h2>
+<h2 class="mb-4 fw-bold">Methodology</h2>
 
-<div class="bg-white shadow-sm p-3 rounded">
-    <p>The Dashboard</p>
-    <p>An overview:</p>
-    <ul>
-      <li>First, we tested webscraping across several sites.</li>
-      <li>Later, we gathered and cleaned data on job postings into CSV files using jobspy.</li>
-      <li>More specialized tools like SpaCy and PhraseMatcher were used to get an overview of the skills in demand for this job market.</li>
-      <li>Develop recommendation model using sklearn, and test with different resumes to improve its match rate.</li>
-      <li>The interactive component of this website, the recommendation model under "Resume Match", will take your resume and show you a sample of suitable job postings, after converting your resume and the job descriptions into numerical vectors via and analyzing cosine similarity.</li>
-    </ul>
+<div class="row g-4">
+  <div class="col-12">
+    <div class="card shadow-sm border-0">
+      <div class="card-body">
+        <h4 class="card-title fw-bold mb-3">1. Data Collection</h4>
+        <p class="card-text">
+          Our dataset is built by aggregating job postings from multiple major platforms including <strong>Indeed,
+            LinkedIn, Glassdoor, and ZipRecruiter</strong>.
+          We utilized the <code class="bg-light px-1 rounded">JobSpy</code> library to scrape real-time job listings.
+          Additionally, we implemented custom <strong>Selenium</strong> scripts to handle dynamic content and ensure a
+          comprehensive dataset.
+          The raw data includes job titles, companies, locations, salaries, and full job descriptions.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12">
+    <div class="card shadow-sm border-0">
+      <div class="card-body">
+        <h4 class="card-title fw-bold mb-3">2. Data Processing & Cleaning</h4>
+        <p class="card-text">
+          Raw data was processed using <strong>Pandas</strong> to handle missing values, normalize salary formats, and
+          standardize location names.
+          We employed <strong>spaCy</strong> for Natural Language Processing (NLP) to extract key skills and
+          technologies from unstructured job descriptions.
+          This allowed us to create a structured "skills" column for every job posting, enabling precise filtering and
+          analysis.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12">
+    <div class="card shadow-sm border-0">
+      <div class="card-body">
+        <h4 class="card-title fw-bold mb-3">3. Recommendation Engine</h4>
+        <p class="card-text">
+          The core of our "Resume Match" feature is a content-based recommendation system built with
+          <strong>scikit-learn</strong>.
+          It matches your resume to job postings using a weighted scoring algorithm:
+        </p>
+        <ul class="list-group list-group-flush mb-3">
+          <li class="list-group-item">
+            <strong>TF-IDF Vectorization (55% weight):</strong> We convert both your resume and job descriptions (Title
+            + Skills + Description) into numerical vectors using Term Frequency-Inverse Document Frequency. This
+            captures the semantic similarity between your profile and the job.
+          </li>
+          <li class="list-group-item">
+            <strong>Skill Overlap (35% weight):</strong> We calculate the percentage of required job skills that are
+            present in your resume. This ensures you have the specific technical competencies requested.
+          </li>
+          <li class="list-group-item">
+            <strong>Experience Bonus (10% weight):</strong> We extract years of experience from both texts and apply a
+            bonus score if your experience level closely matches the job requirements, filtering out roles that are too
+            senior.
+          </li>
+        </ul>
+        <p class="card-text text-muted fst-italic">
+          Final Score = (0.55 × TF-IDF) + (0.35 × Skill Score) + (0.10 × Experience Bonus)
+        </p>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}

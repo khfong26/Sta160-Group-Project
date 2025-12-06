@@ -2,43 +2,39 @@
 {% block title %}Home — Job Market Dashboard{% endblock %}
 
 {% block content %}
-<div class="hero">
-  <h1>Job Market Analytics Dashboard</h1>
-  <p>Explore real-time insights into salaries, top skills, and market trends across the U.S. tech landscape.</p>
-  <p>How is the current job market looking for Statistics majors? Using various APIs, we expand upon indeed.com's job-searching abilities!</p>
-  <p>APIs and coding methods used can be found on methodology.</p>
-  <p></p>
-  <a href="/dashboard" class="btn btn-light btn-lg">Go to Dashboard</a>
+<div class="hero text-center py-5">
+  <h1 class="display-4 fw-bold mb-3">Job Market Analytics Dashboard</h1>
+  <p class="lead mb-4">Explore real-time insights into salaries, top skills, and market trends across the U.S. tech landscape.</p>
+  <a href="/dashboard" class="btn btn-light btn-lg px-4">Go to Dashboard</a>
 </div>
 
 <div class="row g-4">
-  <div class="col-md-4">
-    <div class="card p-4 h-100">
+  <div class="col-md-6">
+    <div class="card p-4 h-100 shadow-sm border-0">
       <h3>💰 Salaries</h3>
-      <p class="text-muted">Analyze salary distributions by location and job title to understand compensation trends.
-      </p>
-      <a href="/salary" class="text-primary fw-bold">View Salaries &rarr;</a>
+      <p class="text-muted">Analyze salary distributions by location and job title to understand compensation trends.</p>
+      <a href="/salary" class="text-primary fw-bold text-decoration-none">View Salaries &rarr;</a>
     </div>
   </div>
-  <div class="col-md-4">
-    <div class="card p-4 h-100">
+  <div class="col-md-6">
+    <div class="card p-4 h-100 shadow-sm border-0">
       <h3>🛠️ Skills</h3>
       <p class="text-muted">Discover the most in-demand skills and technologies required by top employers.</p>
-      <a href="/skills" class="text-primary fw-bold">View Skills &rarr;</a>
+      <a href="/skills" class="text-primary fw-bold text-decoration-none">View Skills &rarr;</a>
     </div>
   </div>
-  <div class="col-md-4">
-    <div class="card p-4 h-100">
+  <div class="col-md-6">
+    <div class="card p-4 h-100 shadow-sm border-0">
       <h3>📈 Trends</h3>
       <p class="text-muted">Track job posting volumes over time to identify emerging market opportunities.</p>
-      <a href="/trends" class="text-primary fw-bold">View Trends &rarr;</a>
+      <a href="/trends" class="text-primary fw-bold text-decoration-none">View Trends &rarr;</a>
     </div>
   </div>
-  <div class="col-md-4">
-    <div class="card p-4 h-100">
+  <div class="col-md-6">
+    <div class="card p-4 h-100 shadow-sm border-0">
       <h3>📄 Recommended postings</h3>
       <p class="text-muted">See where your skills and your resume will land you!</p>
-      <a href="/recommend" class="text-primary fw-bold">Submit your resume! &rarr;</a>
+      <a href="/recommend" class="text-primary fw-bold text-decoration-none">Submit your resume! &rarr;</a>
     </div>
   </div>
 </div>
