@@ -256,3 +256,16 @@ a {
 .hero .btn-light:hover {
     background-color: #f8fafc;
 }
+
+
+.section-wrapper {
+    padding: 2rem;
+    border-radius: 16px;
+    background: none;
+}
+
+
+.card-accent {
+    border-top: 4px solid var(--primary-color) !important;
+    border-radius: 12px;
+}

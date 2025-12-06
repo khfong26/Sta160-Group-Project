@@ -36,6 +36,10 @@ def skills_page():
 def trends_page():
     return render_template("trends.html")
 
+@app.route("/intro")
+def intro_page():
+    return render_template("intro.html")
+
 @app.route("/methodology")
 def methodology_page():
     return render_template("methodology.html")
