@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Introduction{% endblock %}
+
+{% block content %}
+<h2 class="mb-4 fw-bold">Introduction</h2>
+
+<div class="col-lg-10 mx-auto">   
+  <div class="row g-4">
+
+    <div class="col-12">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <p class="card-text">
+            Our project aims to conduct an analysis of the job market across the states of 
+            <strong>California, New York, and Texas</strong>. Using data scraped from 
+            <strong>Indeed.com</strong>, we analyzed job postings based on factors such as role, 
+            location, salary ranges, and skillsets. From our scraped data, we identified 
+            patterns and overall trends across these roles.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <p class="card-text">
+            Our analysis was built on a complete data pipeline that scrapes raw job listings 
+            from Indeed.com, cleans the raw CSV files into processed CSV files, and loads it 
+            onto our dashboard, with a recommendation model page to give users the best 
+            fitting jobs based on their resumes. The dashboard was developed using 
+            <strong>Flask, HTML / CSS, and JavaScript</strong>, and allows users to interact 
+            with our findings and explore important information for each role. Altogether, our project gives a comprehensive overview of the job market between 
+            the three states, specifically focusing on roles related to statistics. 
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <p class="card-text">
+            Naturally, as students about to enter the workforce, our group wanted to focus on a topic 
+            related to all of our studies. All members of our group are Statistics majors, 
+            so we specifically looked at roles relating to Statistics, such as 
+            <strong>Data Analysts, Software Engineers, and Machine Learning Engineers</strong>.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <p class="card-text">
+            By looking at various jobs across different regions in the United States, our group 
+            wanted to understand the different demands, compensations, and skillsets that varied 
+            throughout these regions and adjacent roles. Furthermore, to add a component of 
+            interactivity to the website, we wanted to allow general users to submit their 
+            resumes to get a sample of recommended job postings tailored to their qualifications.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <p class="card-text">
+            This project not only allowed us to apply statistical methods, data cleaning, 
+            and web scraping to make an interactive dashboard, but also helped us answer an 
+            important practical question that we must all face very soon:
+          </p>
+          <p class="card-text fw-bold text-center mb-0">
+            “What does the current job market look like for people with a background in statistics?”
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}
