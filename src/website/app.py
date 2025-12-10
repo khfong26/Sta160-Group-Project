@@ -28,6 +28,10 @@ def dashboard():
 def salary_page():
     return render_template("salary.html")
 
+@app.route("/presentation")
+def video():
+    return render_template("presentation.html")
+
 @app.route("/skills")
 def skills_page():
     return render_template("skills.html")
